@@ -1,0 +1,23 @@
+{
+  "name": "p2ptheater",
+  "version": "1.0.0",
+  "description": "Private Self-hosted WebRTC LAN Theater",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --env-file=.env server.js"
+  },
+  "keywords": [
+    "webrtc",
+    "p2p",
+    "socketio"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
+    "socket.io": "^4.8.3"
+  }
+}

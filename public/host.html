@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>P2P Cinema - Host</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/shared.css">
+  <link rel="stylesheet" href="/css/host.css">
+  <script src="/js/theme.js"></script>
+  <script type="scr" src="js/shared-ui.js"></script>
+</head>
+
+<body>
+  <div id="hostContent" style="display: none;">
+    <h1>Host Dashboard</h1>
+    <div class="control-panel">
+      <h2>Theater Stream Broadcaster</h2>
+      <p class="panel-desc">Capture a single browser tab to stream content to your guests.</p>
+
+      <div class="stream-setup" style="margin-bottom: 20px;">
+        <label style="display:block; margin-bottom: 5px; color: var(--text-secondary); font-size: 14px; font-weight: bold;">Stream Title</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="streamTitleInput" placeholder="e.g. Interstellar Movie Night! 🍿" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); outline: none;">
+          <button class="btn" id="updateTitleBtn" style="padding: 10px 15px;">Set Title</button>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="startScreenShare">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
+          </svg>
+          Start Stream
+        </button>
+        <button class="btn" id="stopStream" disabled>
+          <svg viewBox="0 0 24 24">
+            <path d="M6 6h12v12H6z" />
+          </svg>
+          End
+        </button>
+        <button class="btn" id="muteStreamBtn" disabled>
+          <svg viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z" />
+          </svg>
+          Mute
+        </button>
+      </div>
+
+      <div class="status-indicator">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="connectionStatus">Status: Idle</span>
+      </div>
+    </div>
+    
+    <div id="triviaPanelContainer" class="trivia-panel" style="margin-top: 20px; background: var(--bg-panel); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px var(--shadow-color);">
+      <h3 style="margin-top: 0; margin-bottom: 5px; color: var(--text-primary); font-size: 18px; display: flex; align-items: center; gap: 8px;">
+        <svg viewBox="0 0 24 24" fill="var(--accent-color)" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        Smart Cinema Trivia
+      </h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Search Gemini AI or TMDB and broadcast pop-up facts to your guests independently of the stream.</p>
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <input type="text" id="triviaSearchInput" placeholder="Search actor, movie, etc... e.g. Christopher Nolan" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); outline: none;">
+        <button class="btn" id="searchTriviaBtn" style="padding: 12px 20px;">Search Preview</button>
+      </div>
+      <div id="triviaPreviewArea" style="display: none; background: var(--bg-input); padding: 20px; border-radius: 8px; border: 1px solid var(--border-glass);">
+        <div style="display: flex; gap: 20px; align-items: flex-start;">
+          <img id="triviaPreviewImg" src="" style="width: 90px; height: 130px; object-fit: cover; border-radius: 8px; display: none; box-shadow: 0 4px 10px var(--shadow-color);">
+          <div style="flex: 1;">
+            <h4 id="triviaPreviewTitle" style="margin-top:0; margin-bottom: 8px; color: var(--text-primary); font-size: 16px;"></h4>
+            <p id="triviaPreviewText" style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0; max-height: 100px; overflow-y: auto; padding-right: 5px;"></p>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="broadcastTriviaBtn" style="width: 100%; margin-top: 20px; padding: 12px; background: var(--accent-color); border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px;">🚀 Broadcast Fact to Room</button>
+      </div>
+    </div>
+    
+    <video id="hostPreview" autoplay muted controls></video>
+  </div>
+
+  <div class="chat-panel host-chat-panel" id="chatPanel" style="display: none;">
+    <div class="chat-header">
+      <h3>Room Chat</h3>
+      <button class="icon-btn" id="closeChatBtn"><svg viewBox="0 0 24 24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg></button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-area">
+      <button id="togglePickerBtn" title="Toggle Emotes & Sounds" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 5px;">😃</button>
+      <input type="text" id="chatInput" placeholder="Type a message...">
+      <button id="sendChatBtn"><svg viewBox="0 0 24 24">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+        </svg></button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/identity.js"></script>
+  <script type="module" src="/js/host/main.js"></script>
+  <script type="module" src="/js/chat.js"></script>
+</body>
+
+</html>

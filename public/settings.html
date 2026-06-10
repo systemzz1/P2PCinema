@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings | P2P Cinema</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/shared.css">
+  <script src="/js/theme.js"></script>
+  <style>
+    body {
+      padding-top: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      overflow-y: auto;
+      background: transparent !important;
+    }
+    
+    .settings-container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 40px;
+      box-sizing: border-box;
+      margin: 0 15px;
+      box-shadow: 0 15px 40px var(--shadow-color);
+    }
+    
+    @media (max-width: 600px) {
+      .settings-container {
+        padding: 20px;
+      }
+      .tabs {
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .tab-btn {
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+    }
+    
+    h1 { margin-top: 0; font-size: 28px; }
+    
+    .tabs {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+    
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+    
+    .tab-btn.active {
+      color: var(--text-primary);
+      background: var(--bg-glass);
+    }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: slideUpFade 0.4s ease forwards; }
+    
+    .asset-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .asset-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .asset-item .icon { font-size: 32px; margin-bottom: 10px; }
+    .asset-item .name { font-size: 12px; color: var(--text-muted); word-wrap: break-word; }
+    
+    .delete-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 10px var(--shadow-color);
+    }
+    
+    .add-form {
+      background: var(--bg-glass);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px dashed var(--border-color);
+    }
+    
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 14px;}
+    .form-group input, .form-group select { 
+      width: 100%;
+      padding: 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      outline: none;
+    }
+    .btn-submit {
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-submit:hover { 
+      background: var(--accent-hover); 
+      transform: scale(1.05);
+    }
+    
+    .premium-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .premium-toggle-btn .toggle-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #64748b;
+      transition: all 0.3s ease;
+    }
+    .premium-toggle-btn.active {
+      background: rgba(229, 9, 20, 0.15);
+      border-color: rgba(229, 9, 20, 0.4);
+      color: var(--text-primary);
+      box-shadow: 0 0 15px rgba(229, 9, 20, 0.2);
+    }
+    .premium-toggle-btn.active .toggle-indicator {
+      background: var(--accent-color);
+      box-shadow: 0 0 8px var(--accent-color);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="settings-container" style="position: relative;">
+    <button id="closeSettingsBtn" style="position: absolute; top: 25px; right: 25px; font-size: 32px; background: none; border: none; color: var(--text-secondary); cursor: pointer; transition: color 0.2s; line-height: 1;">&times;</button>
+    <h1>Theater Settings</h1>
+    
+    <div class="tabs">
+      <button class="tab-btn active" data-target="appearanceTab">Appearance</button>
+      <button class="tab-btn" data-target="emotesTab">Emotes</button>
+      <button class="tab-btn" data-target="soundsTab">Soundboard</button>
+      <button class="tab-btn" data-target="triviaTab">Smart Trivia</button>
+      <button class="tab-btn" data-target="qualityTab" id="qualityTabBtn">Stream Quality</button>
+    </div>
+    
+    <!-- APPEARANCE TAB -->
+    <div id="appearanceTab" class="tab-content active">
+      <div class="add-form">
+        <h3>Theme Customization</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Choose your preferred color scheme for the cinematic experience.</p>
+        <div class="form-group">
+          <label>Color Theme</label>
+          <select id="themeSelect">
+            <option value="system">System Default</option>
+            <option value="dark">Dark Mode</option>
+            <option value="light">Light Mode</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMOTES TAB -->
+    <div id="emotesTab" class="tab-content">
+      <div id="emotesToggleContainer" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--bg-input); padding: 15px; border-radius: 12px; border: 1px solid var(--border-glass);">
+        <span id="emotesToggleLabel" style="font-weight: 600; font-size: 15px;">Allow Room Emotes</span>
+        <button id="emotesToggleBtn" class="premium-toggle-btn active">
+          <div class="toggle-indicator"></div>
+          <span class="toggle-text">Enabled</span>
+        </button>
+      </div>
+      
+      <div class="asset-list" id="emotesList"></div>
+      
+      <div class="add-form">
+        <h3>Add New Emote</h3>
+        <div class="form-group">
+          <label>Emoji Character</label>
+          <input type="text" id="newEmoteChar" placeholder="e.g. 🤡" maxlength="2">
+        </div>
+        <button class="btn-submit" id="addEmoteBtn">Add Emote</button>
+      </div>
+    </div>
+    
+    <!-- SOUNDS TAB -->
+    <div id="soundsTab" class="tab-content">
+      <div id="soundsToggleContainer" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--bg-input); padding: 15px; border-radius: 12px; border: 1px solid var(--border-glass);">
+        <span id="soundsToggleLabel" style="font-weight: 600; font-size: 15px;">Allow Room Sounds</span>
+        <button id="soundsToggleBtn" class="premium-toggle-btn active">
+          <div class="toggle-indicator"></div>
+          <span class="toggle-text">Enabled</span>
+        </button>
+      </div>
+
+      <div class="asset-list" id="soundsList"></div>
+      
+      <div class="add-form">
+        <h3>Upload New Sound (Max 2MB)</h3>
+        <div class="form-group">
+          <label>Sound File (.mp3, .wav)</label>
+          <input type="file" id="soundFileInput" accept="audio/*" style="border: none; padding: 0;">
+        </div>
+        <div class="form-group">
+          <label>Sound Name</label>
+          <input type="text" id="soundNameInput" placeholder="e.g. Air Horn">
+        </div>
+        <div class="form-group">
+          <label>Icon Emoji</label>
+          <input type="text" id="soundIconInput" placeholder="e.g. 📯" maxlength="2">
+        </div>
+        <button class="btn-submit" id="uploadSoundBtn">Upload Sound</button>
+        <div id="uploadStatus" style="margin-top: 10px; font-size: 14px; color: #4ade80;"></div>
+      </div>
+    </div>
+
+    <!-- TRIVIA TAB -->
+    <div id="triviaTab" class="tab-content">
+      <div id="triviaMasterToggleContainer" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--bg-input); padding: 15px; border-radius: 12px; border: 1px solid var(--border-glass);">
+        <span style="font-weight: 600; font-size: 15px;">Enable Smart Trivia Panel</span>
+        <button id="triviaMasterToggleBtn" class="premium-toggle-btn active">
+          <div class="toggle-indicator"></div>
+          <span class="toggle-text">Enabled</span>
+        </button>
+      </div>
+
+      <div class="add-form">
+        <h3>Smart Trivia Engine</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Configure the data source for your cinema trivia pop-ups. API keys are stored securely in your browser.</p>
+        
+        <div class="form-group">
+          <label>Active Engine</label>
+          <select id="triviaEngineSelect">
+            <option value="tmdb">The Movie Database (TMDB)</option>
+            <option value="ai">AI Agent (Gemini)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="tmdbKeyGroup">
+          <label>TMDB API Key (v3 auth)</label>
+          <input type="password" id="tmdbApiKeyInput" placeholder="Paste your API key here...">
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Get a free API key at developers.themoviedb.org</p>
+        </div>
+
+        <div class="form-group" id="aiKeyGroup" style="display: none;">
+          <label>Gemini AI API Key</label>
+          <input type="password" id="aiApiKeyInput" placeholder="Paste your Gemini API key here...">
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Get a free API key at aistudio.google.com</p>
+        </div>
+
+        <button class="btn-submit" id="saveTriviaSettingsBtn">Save Settings</button>
+        <div id="triviaSaveStatus" style="margin-top: 10px; font-size: 14px; color: #4ade80;"></div>
+      </div>
+    </div>
+
+    <!-- STREAM QUALITY TAB -->
+    <div id="qualityTab" class="tab-content">
+      <div class="add-form">
+        <h3>Stream Quality & Network</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">
+          Adjust the WebRTC video capture settings. <br>
+          <b>Warning:</b> Max Bitrate is multiplied by the number of connected guests.<br>
+          <span style="color: #fbbf24;"><b>Note:</b> You must End Stream and Start Stream again for new settings to take effect.</span>
+        </p>
+
+        <div style="background: var(--bg-input); padding: 15px; border-radius: 12px; border: 1px solid var(--border-glass); margin-bottom: 20px;">
+          <h4 style="margin: 0 0 10px 0; color: var(--text-primary);">Network Speed Test</h4>
+          <button id="testNetworkBtn" class="btn-submit" style="background: #3b82f6; width: auto; padding: 8px 15px; font-size: 13px;">Test Upload Speed & Auto-Config</button>
+          <div id="networkTestResult" style="margin-top: 10px; font-size: 14px; font-weight: bold; color: var(--text-secondary);"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Capture Resolution</label>
+          <select id="qualityResolution">
+            <option value="1920x1080">1080p (FHD)</option>
+            <option value="1280x720">720p (HD)</option>
+            <option value="854x480">480p (SD)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Framerate (FPS)</label>
+          <select id="qualityFps">
+            <option value="60">60 fps (Smooth Motion)</option>
+            <option value="30">30 fps (Standard)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Video Encoder (Codec)</label>
+          <select id="qualityCodec">
+            <option value="default">Default (VP8)</option>
+            <option value="H264">H.264 (Hardware Accelerated)</option>
+            <option value="VP9">VP9 (High Quality)</option>
+            <option value="AV1">AV1 (Next-Gen Efficiency)</option>
+          </select>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">H.264 uses GPU to eliminate smearing in high-motion scenes.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Max Bitrate (<span id="bitrateVal">5.0</span> Mbps)</label>
+          <input type="range" id="qualityBitrate" min="1.0" max="15.0" step="0.5" value="5.0" style="width: 100%; accent-color: #3b82f6;">
+        </div>
+
+        <div class="form-group">
+          <label>Guest Buffer Delay (<span id="delayVal">2.0</span>s)</label>
+          <input type="range" id="qualityDelay" min="0" max="5" step="0.5" value="2.0" style="width: 100%; accent-color: #3b82f6;">
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Increases playback smoothness for guests at the cost of latency.</p>
+        </div>
+
+        <button class="btn-submit" id="saveQualityBtn">Save Quality Settings</button>
+        <div id="qualitySaveStatus" style="margin-top: 10px; font-size: 14px; color: #4ade80;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/settings/main.js"></script>
+</body>
+</html>
