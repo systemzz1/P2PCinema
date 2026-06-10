@@ -58,14 +58,14 @@ Once the Docker container is running on your machine:
 ## 💻 Local Development
 If you want to modify the source code instead of using Docker:
 ```bash
-git clone https://github.com/your-repo/p2p-cinema.git
-cd p2p-cinema
+git clone https://github.com/systemzz1/P2PCinema.git
+cd P2PCinema
 npm install
 ```
 Create a `.env` file in the root directory:
 ```env
 PORT=3636
-HOST_PASSWORD=my_dev_password
+# HOST_PASSWORD=my_dev_password (Optional: Password is not strictly required for local testing)
 ```
 Start the server:
 ```bash
